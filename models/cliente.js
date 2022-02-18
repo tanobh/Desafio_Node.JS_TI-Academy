@@ -12,14 +12,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Cliente.hasMany(models.pedido);
+      Cliente.hasMany(models.Pedido);
     }
   }
   Cliente.init({
     nome: DataTypes.STRING,
     endereco: DataTypes.STRING,
     cidade: DataTypes.STRING,
-    uf: DataTypes,STRING,
+    uf: DataTypes.STRING,
     nascimento: DataTypes.DATEONLY,
     clienteDesde: DataTypes.DATEONLY
   }, {
