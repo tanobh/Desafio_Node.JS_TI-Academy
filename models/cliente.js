@@ -3,6 +3,7 @@ const {
   Model
 } = require('sequelize');
 const pedido = require('./pedido');
+const compra = require('./compra');
 module.exports = (sequelize, DataTypes) => {
   class Cliente extends Model {
     /**
@@ -13,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Cliente.hasMany(models.Pedido, {foreignKey: 'ClienteId', as: 'pedidos'});
+      Cliente.hasMany(models.Compra, {foreignKey: 'ClienteId', as: 'compras'});
     }
   }
   Cliente.init({

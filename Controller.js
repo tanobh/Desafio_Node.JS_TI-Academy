@@ -13,6 +13,9 @@ let cliente = models.Cliente;
 let itemPedido = models.ItemPedido;
 let pedido = models.Pedido;
 let servico = models.Servico;
+let compra = models.Compra;
+let itemCompra = models.ItemCompra;
+let produto = models.Produto;
 
 app.get('/', function(req, res){
     res.send("Olá mundo");
@@ -221,17 +224,6 @@ app.get('/clientes/:id', async(req, res) =>{ //busca de um cliente por seu id
     });
 });
 
-// app.get('/listaservicosclientes/:id', async(req, res)=>{
-//     await cliente.findByPk(req.body.id, {include: [{all: true}]})      //tentativa da tarefa de listar serviços a partir do id de um cliente
-//     .then(function(servicos){
-//         const serv ={
-//             servic: req.body.id
-//         }
-//         res.json({serv})
-//         servicos
-//     });
-// });
-
 app.put('/clientes/:id/editaritem', async(req, res) =>{ //atualização de um cliente já existente
     const item ={
         nome: req.body.nome,
@@ -307,6 +299,233 @@ app.put('/pedidos/:id/editaritem', async(req, res) =>{  //alteração em um pedi
     });
 });
 
+//------------DESAFIO (COMPRAS, ITEMCOMPRAS E PRODUTOS)-------------------
+
+//-----------------------------------COMPRA---------------------------------------------
+
+app.get('/cadcompra', async(req, res) =>{  //Cadastro Compra
+    await compra.create(
+        req.body
+    ).then(function(){
+        return res.json({
+            error: false,
+            message: 'Compra cadastrada com sucesso!'
+        });
+    }).catch(function(erro){
+        return res.status(400).json({
+            error: true,
+            message: 'Erro ao cadastrar compra.'
+        });
+    });
+});
+
+app.get('/listacompra', async(req, res) =>{  //Listagem Compra
+    await compra.findAll({
+         raw: true
+    }).then(function(compras){
+        res.json(compras)
+    });
+});
+
+app.put('/compras/:id/editaritem', async(req, res) =>{ //Alteração Compra
+    const item = {
+        data: req.body.data
+    };
+
+    if(!await compra.findByPk(req.params.id)){
+        return res.status(400).json({
+            error: true,
+            message: 'Compra não encontrada.'
+        });
+    };
+
+    await compra.update(item, {where: {id: req.params.id}})
+    .then(function(itens){
+        return res.json({
+            error: false,
+            message: 'Compra atualizada com sucesso!',
+            itens
+        });
+    }).catch(function(erro){
+        return res.json({
+            error: true,
+            message: 'Não foi possível alterar a compra'
+        });
+    });
+});
+
+app.get('/compras/:id/excluiritem', async(req, res) =>{  //Exclusão Compra
+    await compra.destroy({
+        where: {id: req.params.id}
+    }).then(function(){
+        return res.json({
+            error: false,
+            message: 'Compra excluída com sucesso!'
+        });
+    }).catch(function(){
+        return res.json({
+            error: true,
+            message: 'Não foi possível excluir a compra.'
+        });
+    });
+});
+
+//------------------------------PRODUTO---------------------------------------
+
+app.get('/cadproduto', async(req, res) =>{  //Cadastro Produto
+    await produto.create(
+        req.body
+    ).then(function(){
+        return res.json({
+            error: false,
+            message: 'Produto cadastrado com sucesso!'
+        });
+    }).catch(function(erro){
+        return res.status(400).json({
+            error: true,
+            message: 'Erro ao cadastrar produto'
+        });
+    });
+});
+
+app.get('/listaprodutos', async(req, res) =>{  //Listagem Produto
+    await produto.findAll({
+        raw: true
+    }).then(function(produtos){
+        return res.json(produtos)
+    }).catch(function(){
+        return res.json({
+            error: true,
+            message: 'Não foi possível listar os produtos existentes'
+        });
+    });
+});
+
+app.put('/produtos/:id/editaritem', async(req, res) =>{  //Alteração Produto
+    const item = {
+        nome: req.body.nome,
+        descricao: req.body.descricao
+    };
+
+    if(!await produto.findByPk(req.params.id)){
+        res.json({
+            error: true,
+            message: 'Produto não encontrado'
+        });
+    };
+
+    await produto.update(item, {where: {id: req.params.id}})
+    .then(function(){
+        res.json({
+            error: false,
+            message: 'Produto alterado com sucesso!'
+        });
+    }).catch(function(){
+        res.json({
+            error: true,
+            message: 'Não foi possível alterar o produto'
+        });
+    });
+});
+
+app.get('/produtos/:id/excluiritem', async(req, res) =>{  //Exclusão Produto
+    await produto.destroy({
+        where: {id: req.params.id}
+    }).then(function(){
+        res.json({
+            error: false,
+            message: 'Produto excluído com sucesso!'
+        });
+    }).catch(function(){
+        res.json({
+            error: true,
+            message: 'Erro na exclusão do produto.'
+        });
+    });
+});
+
+//------------------------------ITEMCOMPRA------------------------------------
+
+app.get('/itemcompras', async(req, res) =>{  //Cadastro ItemCompra
+    await itemCompra.create(
+        req.body
+    ).then(function(){
+        return res.json({
+            error: false,
+            message: 'ItemCompra cadastrado com sucesso!'
+        });
+    }).catch(function(erro){
+        return res.status(400).json({
+            error: true,
+            message: 'Erro ao cadastrar itemCompra.'
+        });
+    });
+});
+
+app.get('/listaitemcompras', async(req, res) =>{  //Listagem ItemCompra
+    await itemCompra.findAll({
+        raw: true
+    }).then(function(itens){
+        res.json(itens)
+    }).catch(function(){
+        res.json({
+            error: true,
+            message: 'Erro ao listar itens compras.'
+        });
+    });
+});
+
+app.put('/itemcompras/:id/editaritem', async(req, res) =>{  //Alteração ItemCompra
+    const item = {
+        quantidade: req.body.quantidade,
+        valor: req.body.valor
+    };
+
+    if(!await compra.findByPk(req.params.id)){
+        res.json({
+            error: true,
+            message: 'Compra não encontrada.'
+        });
+    };
+
+    if(!await produto.findByPk(req.body.ProdutoId)){
+        res.json({
+            error: true,
+            message: 'Produto não encontrado.'
+        });
+    };
+
+    await itemCompra.update(item, 
+        {where: Sequelize.and({CompraId: req.body.CompraId}, {ProdutoId: req.body.ProdutoId})})
+    .then(function(itens){
+        res.json({
+            error: false,
+            message: 'ItemCompra alterado com sucesso!',
+            itens
+        });
+    }).catch(function(){
+        res.json({
+            error: false,
+            message: 'Falha na alteração do ItemCompra.'
+        });
+    });
+});
+
+app.get('/itemcompras/:id/excluiritem', async(req, res) =>{  //Exclusão ItemCompra
+    await itemCompra.destroy({
+        where: {CompraId: req.params.id}
+    }).then(function(){
+        res.json({
+            error: false,
+            message: 'ItemCompra excluído com sucesso!'
+        });
+    }).catch(function(){
+        res.json({
+            error: true,
+            message: 'Falha na exclusão de ItemCompra.'
+        });
+    });
+});
 
 let port = process.env.PORT || 3001;
 
